@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="res/styles.css">
+    <title>Dragones del Mal</title>
+</head>
+
+<body id="body" style="background-color: darkolivegreen; text-align: center;">
+    <div id="div-juego"></div>
+
+    <script src="src/Dragon.js"></script>
+    <script src="src/Jugador.js"></script>
+
+    <script>
+        let jug1 = new Jugador("div-juego", [7, 1, 2], 1);
+        let jug2 = new Jugador("div-juego", [3, 4, 6], 2);
+
+        jug1.setJugadorOponente(jug2);
+        jug2.setJugadorOponente(jug1);
+
+        jug1.realizarTurno(0);
+    </script>
+</body>
+
+</html>

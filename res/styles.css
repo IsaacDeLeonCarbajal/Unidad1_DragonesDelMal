@@ -1,0 +1,100 @@
+h1 {
+    font-family: fantasy;
+    font-size: 5em;
+    text-decoration: none;
+    color: rgb(247, 146, 64);
+}
+
+.btn-dragon {
+    position: absolute;
+    background-color: transparent;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    border-width: 0px;
+    transition-duration: 300ms;
+}
+
+.btn-dragon-activado {
+    cursor: pointer;
+}
+
+.btn-dragon-activado:hover {
+    border-width: 0px;
+    border-radius: 20%;
+    background-color: blue;
+}
+
+.btn-dragon-turno {
+    border-width: 0px;
+    border-radius: 20%;
+    background-color: red;
+}
+
+.btn-dragon-muerto {
+    border-width: 0px;
+    border-radius: 20%;
+    background-color: gray;
+}
+
+.div-indicador-vida {
+    position: absolute;
+    background-color: greenyellow;
+}
+
+.div-indicador-super {
+    position: absolute;
+    font-size: 1em;
+    font-family: cursive;
+    color: black;
+    background-color: aqua;
+}
+
+.btn-super {
+    position: absolute;
+    border-style: solid;
+    border-radius: 5px;
+    cursor: pointer;
+    transition-duration: 300ms;
+}
+
+.btn-super:hover {
+    background-color: rgb(20, 37, 156);
+    border-color: rgb(20, 37, 156);
+    color: white;
+}
+
+.btn-super-activado {
+    background-color: rgb(20, 37, 156);
+    border-color: rgb(20, 37, 156);
+    color: white;
+}
+
+.btn-super-desactivado {
+    background-color: rgb(140, 169, 227);
+    border-color: rgb(20, 37, 156);
+    color: rgb(20, 37, 156);
+}
+
+.div-indicador-efectos {
+    position: absolute;
+    font-family: fantasy;
+    font-size: 1.2em;
+    /* background-color: coral; */
+}
+
+.lbl-efecto {
+    background-color: dodgerblue;
+    /* border-width: 0px;
+    border-radius: 15%; */
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+.lbl-efecto-positivo {
+    background-color: dodgerblue;
+}
+
+.lbl-efecto-negativo {
+    background-color: crimson;
+}
