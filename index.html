@@ -12,17 +12,34 @@
 <body id="body" style="background-color: darkolivegreen; text-align: center;">
     <div id="div-juego"></div>
 
+    <dialog id="dlg-alerta">
+        <form method="dialog">
+            <h2 id="titulo-dialog"></h2>
+            <label id="lbl-mensaje-dialog"></label>
+            <br><br>
+            <button type="submit" value="aceptar">Aceptar</button>
+        </form>
+    </dialog>
+
+    <script src="src/BotonCargar.js"></script>
     <script src="src/Dragon.js"></script>
     <script src="src/Jugador.js"></script>
 
     <script>
-        let jug1 = new Jugador("div-juego", [7, 1, 2], 1);
+        let jug1 = new Jugador("div-juego", [0, 1, 2], 1);
         let jug2 = new Jugador("div-juego", [3, 4, 6], 2);
 
         jug1.setJugadorOponente(jug2);
         jug2.setJugadorOponente(jug1);
 
         jug1.realizarTurno(0);
+
+        function mostrarAlerta(titulo, mensaje) {
+            document.getElementById("titulo-dialog").innerHTML = titulo;
+            document.getElementById("lbl-mensaje-dialog").innerHTML = mensaje;
+            
+            document.getElementById("dlg-alerta").showModal();
+        }
     </script>
 </body>
 

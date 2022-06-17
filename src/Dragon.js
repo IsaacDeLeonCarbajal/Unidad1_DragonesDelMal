@@ -22,7 +22,7 @@ class Dragon {
     vivo = true;
     danio = 20; //Daño por defecto
     vida = 100;
-    super = 0;
+    super = 100;
     idHabilidad;
 
     efectos = [];
@@ -94,8 +94,8 @@ class Dragon {
         this.btnSuper.classList = "btn-super btn-super-desactivado";
         this.btnSuper.innerHTML = "Super";
         this.btnSuper.style.width = "5%";
-        this.btnSuper.style.height = "3%";
-        this.btnSuper.style.top = (y + Dragon.HEIGHT + 1) + "%";
+        this.btnSuper.style.height = "4%";
+        this.btnSuper.style.top = (y + Dragon.HEIGHT + 2) + "%";
         this.btnSuper.style.left = x + "%";
         this.btnSuper.addEventListener('click', () => {
             if (this.super < 100) { //Si aún no se carag el super
@@ -158,42 +158,43 @@ class Dragon {
         }
     }
 
-    usarHabilidad(aliados, oponentes, indice) {
+    usarHabilidad(objetivos, indice) {
         switch (this.idHabilidad) {
             case 0: //paralizacion
+                objetivos[indice].efectos.push(this.idHabilidad);
                 break;
             case 1: //multiataque
-                for (let i = 0; i < oponentes.length; i++) { //Para todos los oponentes
-                    oponentes[i].recibirDanio(this.danio * 0.8); //Hacer daño
+                for (let i = 0; i < objetivos.length; i++) { //Para todos los oponentes
+                    objetivos[i].recibirDanio(this.danio * 0.8); //Hacer daño
                 }
                 break;
             case 2: //curacion
-                aliados[indice].recibirDanio(-20); //Recibir 20 de vida y actualizar el indicador
+                objetivos[indice].recibirDanio(-20); //Recibir 20 de vida y actualizar el indicador
                 break;
             case 3: //envenenamiento
                 //Causar el efecto por 3 turnos
-                oponentes[indice].efectos.push(this.idHabilidad);
-                oponentes[indice].efectos.push(this.idHabilidad);
-                oponentes[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
                 break;
             case 4: //superataque
-                oponentes[indice].recibirDanio(this.danio * 1.7); //Hacer daño extra
+                objetivos[indice].recibirDanio(this.danio * 1.7); //Hacer daño extra
                 break;
             case 5: //escudo
                 //Causar el efecto por 2 turnos
-                aliados[indice].efectos.push(this.idHabilidad);
-                aliados[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
                 break;
             case 6: //espinas
                 //Causar el efecto por 3 turnos
-                aliados[indice].efectos.push(this.idHabilidad);
-                aliados[indice].efectos.push(this.idHabilidad);
-                aliados[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
                 break;
             case 7: //debilitamiento
                 //Causar el efecto por 2 turnos
-                oponentes[indice].efectos.push(this.idHabilidad);
-                oponentes[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
+                objetivos[indice].efectos.push(this.idHabilidad);
                 break;
             default:
                 throw "idDragon inválido. Debe estar entre 0 y " + (Dragon.HABILIDADES.length - 1);
@@ -235,6 +236,7 @@ class Dragon {
                         clase = "lbl-efecto-positivo";
                         break;
                     case 0: //paralizacion
+                        this.efectos.push(Dragon.HABILIDADES[i]); //Agregar el efecto que se va a quitar
                         clase = "lbl-efecto-negativo";
                         break;
                     case 3: //envenenamiento
