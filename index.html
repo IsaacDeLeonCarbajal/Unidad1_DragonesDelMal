@@ -43,7 +43,7 @@
         let contJugador = 0; //Indice del jugador que se está inicializando
         let contSeleccionados = 0;
 
-        for (let i = 0; i < Dragon.HABILIDADES.length; i++) {
+        for (let i = 0; i < Dragon.HABILIDADES.length; i++) { //Crear las vistas para seleccionar a los dragones
             let btn = document.createElement("button");
             btn.id = "btn-dragon-" + (i + 1);
             btn.classList = "btn-dragon btn-dragon-activado";
@@ -66,26 +66,25 @@
             lbl.style.left = 1 + (34 * (i % 3)) + "%";
 
             btn.setSeleccionado = (selec) => {
-                btn.seleccionado = selec;
+                btn.seleccionado = selec; //Actualizar el estado de seleccionado
 
                 if (btn.seleccionado) { //Si se quiere seleccionar a este dragon
-                    contSeleccionados++;
-
+                    contSeleccionados++; //Aumentar el contador de seleccionados
                     btn.classList = "btn-dragon btn-dragon-turno";
                 } else { //Si se quiere deseleccionar a este dragon
-                    contSeleccionados--;
+                    contSeleccionados--; //Disminuir el contador de seleccionados
                     btn.classList = "btn-dragon btn-dragon-activado";
                 }
             }
             btn.addEventListener('click', () => {
-                btn.seleccionado = !btn.seleccionado;
+                btn.seleccionado = !btn.seleccionado; //Cambiar el estado de seleccionado
 
                 if (btn.seleccionado && contSeleccionados >= 3) { //Si se quiere seleccionar a este dragón pero ya se seleccionaron a los 3 dragones
                     btn.seleccionado = false; //No se puede seleccionar otro
-                    return; //no hacer nada más
+                    return; //No hacer nada más
                 }
 
-                btn.setSeleccionado(btn.seleccionado);
+                btn.setSeleccionado(btn.seleccionado); //Actualizar el estado de seleccionado
             });
 
             document.getElementById("div-seleccion-dragon").insertAdjacentElement("beforeend", btn);
@@ -104,8 +103,8 @@
         dlgSeleccionDragones.addEventListener('close', () => {
             let drgns = [];
 
-            for (let i = 0; i < Dragon.HABILIDADES.length; i++) {
-                let btn = document.getElementById("btn-dragon-" + (i + 1));
+            for (let i = 0; i < Dragon.HABILIDADES.length; i++) { //Para cada tipo de dragón
+                let btn = document.getElementById("btn-dragon-" + (i + 1)); //Obtener el botón del dragón
 
                 if (btn.seleccionado) { //Si se seleccionó a este dragón
                     drgns.push(i); //Agregarlo a la lista
@@ -122,7 +121,7 @@
                 case 1: //Jugador 2
                     jugadores.push(new Jugador("div-juego", drgns, (contJugador + 1))); //Inicializar al jugador 2
 
-                    //Después de que inicializar al jugador 2, comenzar el juego
+                    //Después de inicializar al jugador 2, comenzar el juego
                     //Pasar las referencias de los oponentes
                     jugadores[0].setJugadorOponente(jugadores[1]);
                     jugadores[1].setJugadorOponente(jugadores[0]);

@@ -7,6 +7,8 @@ class BotonCargar {
     idIntervalo;
     carga;
 
+    velCarga = 0.1; //Velocidad de carga
+
     constructor(idDivPadre, x, y, width, height, onCarga) {
         this.carga = 0;
         this.divContenedor = document.createElement("div");
@@ -30,38 +32,37 @@ class BotonCargar {
         this.btnCargar.style.top = "90%";
 
         this.btnCargar.addEventListener('click', () => { //Al dar click en el botón
-            this.carga = (Math.ceil(this.carga * 10)) / 10;
+            this.carga = (Math.ceil(this.carga * 10)) / 10; //Calcular la carga redondeada
 
             onCarga(this.carga); //Enviar el evento
 
             this.pausar(); //Pausar la vista
         });
 
+        //Agregar los elementos a la pantalla
         this.divContenedor.insertAdjacentElement("beforeend", this.divCarga);
         this.divContenedor.insertAdjacentElement("beforeend", this.btnCargar);
         document.getElementById(idDivPadre).insertAdjacentElement("beforeend", this.divContenedor);
     }
 
     iniciar() {
-        this.btnCargar.classList = "btn-cargar btn-cargar-hover";
+        this.btnCargar.classList = "btn-cargar btn-cargar-hover"; //Actualizar el estilo del boton
         clearInterval(this.idIntervalo); //Eliminar el proceso anterior, en caso de que lo hubiera
         this.carga = 0; //Reiniciar la carga
-        let dY = 0.1; //Velocidad de carga
+        this.btnCargar.disabled = false; //Activar el botón
 
         this.idIntervalo = setInterval(() => {
-            if ((this.carga + dY) > 1) { //Si la carga es mayor que 1
-                this.carga = -dY; //Reiniciarla
+            if ((this.carga + velCarga) > 1) { //Si la carga es mayor que 1
+                this.carga = -velCarga; //Reiniciarla
             }
 
-            this.setCarga(this.carga += dY);
+            this.setCarga(this.carga += velCarga); //Actualizar la carga
         }, 70);
-
-        this.btnCargar.disabled = false; //Activar el botón
     }
 
     pausar() {
-        this.btnCargar.classList = "btn-cargar";
-        clearInterval(this.idIntervalo);
+        this.btnCargar.classList = "btn-cargar"; //Actualizar el estilo del boton
+        clearInterval(this.idIntervalo); //Eliminar el proceso anterior, en caso de que lo hubiera
 
         this.btnCargar.disabled = true; //Desactivar el botón
     }

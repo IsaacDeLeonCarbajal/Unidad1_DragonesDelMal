@@ -18,12 +18,13 @@ class Dragon {
     indicadorVida;
     indicadorEfectos;
     indicadorSuper;
+    btnSuper;
 
-    vivo = true;
-    danio = 20; //Daño por defecto
-    vida = 100;
-    super = 80;
     idHabilidad;
+    vivo = true;
+    danio = 20;
+    vida = 100;
+    super = 0;
 
     efectos = [];
     superActivado = false;
@@ -43,12 +44,12 @@ class Dragon {
         this.idHabilidad = idDragon; //Hailidad de este dragón
 
         if (this.idHabilidad < 0 || this.idHabilidad > Dragon.HABILIDADES.length) { //Si la habilidad no es válida
-            throw "idDragon inválido. Debe estar entre 1 y " + Dragon.HABILIDADES.length; //Terminar
+            throw "idDragon inválido. Debe estar entre 0 y " + (Dragon.HABILIDADES.length - 1);
         }
 
         let dX = 0.5; //Velocidad de levitación
         let lim = 0.8; //Límite de movimiento con la levitación
-        let rX = 0;
+        let rX = 0; //Posición real en x
 
         this.idIntervalo = setInterval(() => { //Dar el efecto de levitación
             if (!this.vivo) { //Si el dragón ya fue abatido
@@ -135,15 +136,15 @@ class Dragon {
         let indiceEfecto = this.efectos.indexOf(7); //Buscar el efecto de debilitamiento
 
         if (indiceEfecto != -1) { //Si el dragón tiene el efecto de debilitamiento
-            fuerza *= 0.7; //Disminuir la fuerza
+            fuerza *= 0.6; //Disminuir la fuerza
 
             this.efectos.splice(indiceEfecto, 1); //Eliminar el efecto
         }
 
         let danioReal = this.danio * fuerza; //Calcular el daño real, según la fuerza establecida
 
-        if (cargarSuper == undefined || cargarSuper !== false) { //Si se debería cargar el super
-            this.setSuper(Math.min(this.super + (fuerza * (100 / 2)), 100)); //Actualizar la carga del super
+        if (cargarSuper == undefined || cargarSuper !== false) { //Si se debería cargar el super con el ataque
+            this.setSuper(Math.min(this.super + (fuerza * (100 / 4)), 100)); //Actualizar la carga del super
         }
 
         indiceEfecto = objetivo.efectos.indexOf(5); //Buscar el efecto de escudo en el enemigo
@@ -157,7 +158,7 @@ class Dragon {
         indiceEfecto = objetivo.efectos.indexOf(6); //Buscar el efecto de espinas en el enemigo
 
         if (indiceEfecto != -1) { //Si el enemigo tiene espinas
-            this.recibirDanio(danioReal); //Devolver el daño
+            this.recibirDanio(danioReal); //Recibir el daño hecho
 
             objetivo.efectos.splice(indiceEfecto, 1); //Eliminar el efecto
         }
@@ -166,6 +167,7 @@ class Dragon {
     usarHabilidad(objetivos, indice) {
         switch (this.idHabilidad) {
             case 0: //paralizacion
+                //Causar el efecto por 1 turno
                 objetivos[indice].efectos.push(this.idHabilidad);
                 break;
             case 1: //multiataque
@@ -183,7 +185,7 @@ class Dragon {
                 objetivos[indice].efectos.push(this.idHabilidad);
                 break;
             case 4: //superataque
-                objetivos[indice].recibirDanio(this.danio * 1.7); //Hacer daño extra
+                this.atacar(objetivos[indice], 2, false); //Hacer daño sin recibir super
                 break;
             case 5: //escudo
                 //Causar el efecto por 2 turnos
@@ -207,7 +209,7 @@ class Dragon {
     }
 
     pasarTurno() {
-        let cantEfectos = {
+        let cantEfectos = { //Cantidad de turnos restantes con cada efecto que tiene el dragón
             "efecto0": 0,
             "efecto1": 0,
             "efecto2": 0,
@@ -222,15 +224,34 @@ class Dragon {
             cantEfectos["efecto" + this.efectos[i]]++; //Contar los turnos restantes con cada efecto
         }
 
-        this.indicadorEfectos.innerHTML = ""; //Borrar todos los efectos
+        this.indicadorEfectos.innerHTML = ""; //Borrar todos los efectos de la vista
 
-        for (let i = 0; i < Dragon.HABILIDADES.length; i++) {
-            if (cantEfectos["efecto" + i] > 0) { //Si tiene este efecto
+        for (let i = 0; i < Dragon.HABILIDADES.length; i++) { //Para cada tipo de efecto
+            if (cantEfectos["efecto" + i] > 0) { //Si el dragón tiene este efecto
                 let clase = ""; //Determinar su clase CSS, dependiendo de si es positivo o negativo
 
+                /*
+                Algunos efectos, como el escudo, se quedan en el dragón hasta que se utilicen.
+                Otros, como el envenenamiento, se van usando y quitando del dragón en cada turno.
+                */
+
                 switch (i) {
+                    case 0: //paralizacion
+                        this.efectos.push(Dragon.HABILIDADES[i]); //Agregar el efecto que se va a quitar
+                        clase = "lbl-efecto-negativo";
+                        break;
+                    case 1: //multiataque
+                        //No hacer nada
+                        break;
                     case 2: //curacion
-                        clase = "lbl-efecto-positivo";
+                        //No hacer nada
+                        break;
+                    case 3: //envenenamiento
+                        this.recibirDanio(10); //Recibir el daño por envenenamiento
+                        clase = "lbl-efecto-negativo";
+                        break;
+                    case 4: //superataque
+                        //No hacer nada
                         break;
                     case 5: //escudo
                         this.efectos.push(Dragon.HABILIDADES[i]); //Agregar el efecto que se va a quitar
@@ -240,21 +261,9 @@ class Dragon {
                         this.efectos.push(Dragon.HABILIDADES[i]); //Agregar el efecto que se va a quitar
                         clase = "lbl-efecto-positivo";
                         break;
-                    case 0: //paralizacion
-                        this.efectos.push(Dragon.HABILIDADES[i]); //Agregar el efecto que se va a quitar
-                        clase = "lbl-efecto-negativo";
-                        break;
-                    case 3: //envenenamiento
-                        this.recibirDanio(10); //Recibir el daño por envenenamiento
-                        clase = "lbl-efecto-negativo";
-                        break;
                     case 7: //debilitamiento
                         this.efectos.push(Dragon.HABILIDADES[i]); //Agregar el efecto que se va a quitar
                         clase = "lbl-efecto-negativo";
-                        break;
-                    case 1: //multiataque
-                    case 4: //superataque
-                        //No hacer nada
                         break;
                     default:
                         throw "idDragon inválido. Debe estar entre 0 y " + (Dragon.HABILIDADES.length - 1);
@@ -262,7 +271,7 @@ class Dragon {
 
                 this.efectos.splice(this.efectos.indexOf(Dragon.HABILIDADES[i]), 1); //Eliminar un turno del efecto
 
-                this.indicadorEfectos.innerHTML += "<label class='lbl-efecto " + clase + "'>" + Dragon.HABILIDADES[i] + " x " + cantEfectos["efecto" + i] + "</label><br>"; //Agregar el efecto al indicador
+                this.indicadorEfectos.innerHTML += "<label class='lbl-efecto " + clase + "'>" + Dragon.HABILIDADES[i] + " x " + cantEfectos["efecto" + i] + "</label><br>"; //Agregar el efecto a la vista del indicador
             }
         }
 
@@ -278,12 +287,12 @@ class Dragon {
         if (this.vida <= 0) { //Si el dragon muere
             this.imagen.classList = "btn-dragon btn-dragon-muerto"; //Evitar el efecto hover de CSS
             this.imagen.disabled = true; //Evitar que se pueda seleccionar
-            this.vivo = false; //Indicar que ya fue abatido
+            this.vivo = false; //Indicar que el dragón ya fue abatido
         }
     }
 
     setSuper(nuevoSuper) {
-        this.super = nuevoSuper;
+        this.super = nuevoSuper; //Actualizar el super
 
         this.indicadorSuper.style.width = Math.max(0, (Dragon.WIDTH * this.super * 0.01)) + "%"; //Actualizar el indicador de super
     }
