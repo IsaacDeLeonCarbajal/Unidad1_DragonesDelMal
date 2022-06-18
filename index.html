@@ -6,38 +6,140 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="res/styles.css">
+    <link rel="stylesheet" href="res/carga-boton.css">
     <title>Dragones del Mal</title>
 </head>
 
 <body id="body" style="background-color: darkolivegreen; text-align: center;">
-    <div id="div-juego"></div>
+    <script src="src/BotonCargar.js"></script>
+    <script src="src/Dragon.js"></script>
+    <script src="src/Jugador.js"></script>
+
+    <div id="div-juego" style="display: none;"></div>
+
+    <dialog id="dlg-seleccion-dragones" style="position:relative; width: 60%; height: 60%;">
+        <form method="dialog" id="form-dialog" style="position:relative; width: 100%; height: 85%;">
+            <h2 id="titulo-seleccion">Elige a tus dragones jugador 1</h2>
+
+            <div id="div-seleccion-dragon" style="position:relative; width: 100%; height: 95%;"></div>
+
+            <button type="submit" value="aceptar" class="btn-dialog">Aceptar</button>
+        </form>
+    </dialog>
 
     <dialog id="dlg-alerta">
         <form method="dialog">
             <h2 id="titulo-dialog"></h2>
             <label id="lbl-mensaje-dialog"></label>
             <br><br>
-            <button type="submit" value="aceptar">Aceptar</button>
+            <button type="submit" value="aceptar" class="btn-dialog">Aceptar</button>
         </form>
     </dialog>
 
-    <script src="src/BotonCargar.js"></script>
-    <script src="src/Dragon.js"></script>
-    <script src="src/Jugador.js"></script>
-
     <script>
-        let jug1 = new Jugador("div-juego", [0, 1, 2], 1);
-        let jug2 = new Jugador("div-juego", [3, 4, 6], 2);
+        var dlgSeleccionDragones = document.getElementById("dlg-seleccion-dragones");
 
-        jug1.setJugadorOponente(jug2);
-        jug2.setJugadorOponente(jug1);
+        let jugadores = []; //Jugadores
+        let contJugador = 0; //Indice del jugador que se está inicializando
+        let contSeleccionados = 0;
 
-        jug1.realizarTurno(0);
+        for (let i = 0; i < Dragon.HABILIDADES.length; i++) {
+            let btn = document.createElement("button");
+            btn.id = "btn-dragon-" + (i + 1);
+            btn.classList = "btn-dragon btn-dragon-activado";
+            btn.type = "button";
+            btn.seleccionado = false;
+            btn.style.backgroundImage = "url(res/dragon" + (i + 1) + ".png)";
+            btn.style.width = "20%";
+            btn.style.height = "24%";
+            btn.style.top = (34 * parseInt(i / 3)) + "%";
+            btn.style.left = 5 + (35 * (i % 3)) + "%";
+
+            let lbl = document.createElement("label");
+            lbl.htmlFor = btn.id;
+            lbl.innerHTML = Dragon.HABILIDADES[i];
+            lbl.classList = "lbl-efecto lbl-efecto-positivo";
+            lbl.style.position = "absolute";
+            lbl.style.width = "20%";
+            lbl.style.height = "6%";
+            lbl.style.top = 24 + (34 * parseInt(i / 3)) + "%";
+            lbl.style.left = 1 + (34 * (i % 3)) + "%";
+
+            btn.setSeleccionado = (selec) => {
+                btn.seleccionado = selec;
+
+                if (btn.seleccionado) { //Si se quiere seleccionar a este dragon
+                    contSeleccionados++;
+
+                    btn.classList = "btn-dragon btn-dragon-turno";
+                } else { //Si se quiere deseleccionar a este dragon
+                    contSeleccionados--;
+                    btn.classList = "btn-dragon btn-dragon-activado";
+                }
+            }
+            btn.addEventListener('click', () => {
+                btn.seleccionado = !btn.seleccionado;
+
+                if (btn.seleccionado && contSeleccionados >= 3) { //Si se quiere seleccionar a este dragón pero ya se seleccionaron a los 3 dragones
+                    btn.seleccionado = false; //No se puede seleccionar otro
+                    return; //no hacer nada más
+                }
+
+                btn.setSeleccionado(btn.seleccionado);
+            });
+
+            document.getElementById("div-seleccion-dragon").insertAdjacentElement("beforeend", btn);
+            document.getElementById("div-seleccion-dragon").insertAdjacentElement("beforeend", lbl);
+        }
+
+        dlgSeleccionDragones = document.getElementById("dlg-seleccion-dragones");
+        dlgSeleccionDragones.showModal();
+        dlgSeleccionDragones.reiniciar = () => {
+            for (let i = 0; i < Dragon.HABILIDADES.length; i++) {
+                document.getElementById("btn-dragon-" + (i + 1)).setSeleccionado(false); //Deselccionar todos los dragones
+            }
+
+            contSeleccionados = 0;
+        };
+        dlgSeleccionDragones.addEventListener('close', () => {
+            let drgns = [];
+
+            for (let i = 0; i < Dragon.HABILIDADES.length; i++) {
+                let btn = document.getElementById("btn-dragon-" + (i + 1));
+
+                if (btn.seleccionado) { //Si se seleccionó a este dragón
+                    drgns.push(i); //Agregarlo a la lista
+                }
+            }
+
+            switch (contJugador) {
+                case 0: //Jugador 1
+                    jugadores.push(new Jugador("div-juego", drgns, (contJugador + 1))); //Inicializar al jugador 1
+                    document.getElementById("titulo-seleccion").innerHTML = "Elige a tus dragones jugador 2";
+                    dlgSeleccionDragones.reiniciar(); //Reiniciar las vistas del diálogo
+                    dlgSeleccionDragones.showModal(); //Mostrar el diálogo
+                    break;
+                case 1: //Jugador 2
+                    jugadores.push(new Jugador("div-juego", drgns, (contJugador + 1))); //Inicializar al jugador 2
+
+                    //Después de que inicializar al jugador 2, comenzar el juego
+                    //Pasar las referencias de los oponentes
+                    jugadores[0].setJugadorOponente(jugadores[1]);
+                    jugadores[1].setJugadorOponente(jugadores[0]);
+
+                    jugadores[0].realizarTurno(0); //Comenzar con los turnos
+
+                    document.getElementById("div-juego").style.display = "inline"; //Mostrar el juego
+                    break;
+            }
+
+            contJugador++;
+        });
 
         function mostrarAlerta(titulo, mensaje) {
             document.getElementById("titulo-dialog").innerHTML = titulo;
             document.getElementById("lbl-mensaje-dialog").innerHTML = mensaje;
-            
+
             document.getElementById("dlg-alerta").showModal();
         }
     </script>

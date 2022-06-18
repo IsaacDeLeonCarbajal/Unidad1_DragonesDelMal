@@ -22,14 +22,15 @@ class Dragon {
     vivo = true;
     danio = 20; //Daño por defecto
     vida = 100;
-    super = 100;
+    super = 80;
     idHabilidad;
 
     efectos = [];
+    superActivado = false;
 
     idIntervalo;
 
-    constructor(idDivPadre, idDragon, x, y) {
+    constructor(idDivPadre, idDragon, x, y, onSuperChange) {
         //Construir el botón que será la imágen del dragón
         this.imagen = document.createElement("button");
         this.imagen.classList = "btn-dragon btn-dragon-activado";
@@ -84,6 +85,7 @@ class Dragon {
         //Construir el indicador de efectos
         this.indicadorEfectos = document.createElement("div");
         this.indicadorEfectos.classList = "div-indicador-efectos";
+        this.indicadorEfectos.style.textAlign = "left";
         this.indicadorEfectos.style.height = Dragon.HEIGHT + "%";
         this.indicadorEfectos.style.width = Dragon.INDICADOR_WIDTH + "%";
         this.indicadorEfectos.style.top = y + "%";
@@ -98,18 +100,21 @@ class Dragon {
         this.btnSuper.style.top = (y + Dragon.HEIGHT + 2) + "%";
         this.btnSuper.style.left = x + "%";
         this.btnSuper.addEventListener('click', () => {
-            if (this.super < 100) { //Si aún no se carag el super
-                Jugador.USAR_SUPER = false; //No se puede activar el super
+            if (this.super < 100) { //Si aún no se carga el super
+                this.superActivado = false; //No se puede activar el super
+                onSuperChange(this.superActivado); //No se puede activar el super
                 return; //No hacer nada más
             }
 
-            Jugador.USAR_SUPER = !Jugador.USAR_SUPER; //Activar o desactivar el super
+            this.superActivado = !this.superActivado; //Activar o desactivar el super
 
-            if (Jugador.USAR_SUPER) { //Actualizar el estilo CSS del botón, según el estado del super
+            if (this.superActivado) { //Actualizar el estilo CSS del botón, según el estado del super
                 this.btnSuper.classList = "btn-super btn-super-activado";
             } else {
                 this.btnSuper.classList = "btn-super btn-super-desactivado";
             }
+
+            onSuperChange(this.superActivado); //Enviar el evento
         });
 
         //Mostrar en pantalla todas las vistas
@@ -126,7 +131,7 @@ class Dragon {
      * @param {Dragon} objetivo Dragon al que se va a atacar
      * @param {number} fuerza Nivel de intensidad del ataque
      */
-    atacar(objetivo, fuerza) {
+    atacar(objetivo, fuerza, cargarSuper) {
         let indiceEfecto = this.efectos.indexOf(7); //Buscar el efecto de debilitamiento
 
         if (indiceEfecto != -1) { //Si el dragón tiene el efecto de debilitamiento
@@ -137,9 +142,9 @@ class Dragon {
 
         let danioReal = this.danio * fuerza; //Calcular el daño real, según la fuerza establecida
 
-        this.super = Math.min(this.super + (fuerza * (100)), 100); //Actualizar la carga del super
-
-        this.indicadorSuper.style.width = Math.max(0, (Dragon.WIDTH * this.super * 0.01)) + "%"; //Actualizar el indicador de super
+        if (cargarSuper == undefined || cargarSuper !== false) { //Si se debería cargar el super
+            this.setSuper(Math.min(this.super + (fuerza * (100 / 2)), 100)); //Actualizar la carga del super
+        }
 
         indiceEfecto = objetivo.efectos.indexOf(5); //Buscar el efecto de escudo en el enemigo
 
@@ -165,7 +170,7 @@ class Dragon {
                 break;
             case 1: //multiataque
                 for (let i = 0; i < objetivos.length; i++) { //Para todos los oponentes
-                    objetivos[i].recibirDanio(this.danio * 0.8); //Hacer daño
+                    this.atacar(objetivos[i], 0.8, false); //Hacer daño sin recibir super
                 }
                 break;
             case 2: //curacion
@@ -277,27 +282,10 @@ class Dragon {
         }
     }
 
-    /*
-    switch (this.idHabilidad) {
-        case 0: //paralizacion
-            break;
-        case 1: //multiataque
-            break;
-        case 2: //curacion
-            break;
-        case 3: //envenenamiento
-            break;
-        case 4: //superataque
-            break;
-        case 5: //escudo
-            break;
-        case 6: //espinas
-            break;
-        case 7: //debilitamiento
-            break;
-        default:
-            throw "idDragon inválido. Debe estar entre 1 y " + Dragon.HABILIDADES.length;
+    setSuper(nuevoSuper) {
+        this.super = nuevoSuper;
+
+        this.indicadorSuper.style.width = Math.max(0, (Dragon.WIDTH * this.super * 0.01)) + "%"; //Actualizar el indicador de super
     }
-    */
 
 }

@@ -80,13 +80,12 @@ h1 {
     position: absolute;
     font-family: fantasy;
     font-size: 1.2em;
-    /* background-color: coral; */
 }
 
 .lbl-efecto {
+    font-family: fantasy;
+    font-size: 1.2em;
     background-color: dodgerblue;
-    /* border-width: 0px;
-    border-radius: 15%; */
     padding-left: 5%;
     padding-right: 5%;
 }
@@ -97,4 +96,21 @@ h1 {
 
 .lbl-efecto-negativo {
     background-color: crimson;
+}
+
+.btn-dialog {
+    font-family: fantasy;
+    font-weight: normal;
+    font-size: 1.2em;
+    border-width: 2px;
+    border-radius: 8px;
+    background-color: white;
+    border-color: black;
+    color: black;
+}
+
+.btn-dialog:hover {
+    background-color: black;
+    border-color: black;
+    color: white;
 }

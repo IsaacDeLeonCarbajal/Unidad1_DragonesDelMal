@@ -9,6 +9,8 @@ class Jugador {
     jugOponente;
     indiceTurno = -1;
 
+    carga = undefined;
+
     /**
      * 
      * @param {Array} idsDragones Arreglo con los id de los dragones se este jugador
@@ -21,6 +23,7 @@ class Jugador {
         let transform = "";
         let indicadorX = 0;
         let btnSuperX = 0;
+        let textAlign = "left";
 
         switch (numJugador) {
             case 1: //Si es el jugador 1 (a la izquierda)
@@ -28,27 +31,43 @@ class Jugador {
                 transform = "scaleX(-1)";
                 indicadorX = (dragonesX - Dragon.INDICADOR_WIDTH - 1) + "%";
                 btnSuperX = (dragonesX + Dragon.INDICADOR_WIDTH - 2);
+                textAlign = "right";
                 break;
             case 2: //Si es el jugador 2 (a la derecha)
                 dragonesX = 60;
                 indicadorX = (dragonesX + Dragon.INDICADOR_WIDTH + 1) + "%";
                 btnSuperX = (dragonesX - 6);
+                textAlign = "left";
                 break;
         }
 
         for (let i = 0; i < idsDragones.length; i++) { //Crear y acomodar las vistas de cada dragón
-            let dragon = new Dragon(idDivPadre, idsDragones[i], dragonesX, 10 + (28 * i));
+            let dragon = new Dragon(idDivPadre, idsDragones[i], dragonesX, 10 + (28 * i), (superActivado) => {
+                if (this.carga != undefined) { //Si ya se determinó una carga
+                    return; //No se puede usar el super
+                }
+
+                Jugador.USAR_SUPER = superActivado;
+
+                this.btnCargar.setCarga(0);
+
+                if (superActivado) { //Si se activa el super
+                    this.btnCargar.pausar(); //No se usará la carga
+                } else { //Si se desactiva el super
+                    this.btnCargar.iniciar(); //Si se usará la carga
+                }
+            });
             dragon.imagen.style.transform = transform;
             dragon.indicadorEfectos.style.left = indicadorX;
+            dragon.indicadorEfectos.style.textAlign = textAlign;
             dragon.btnSuper.style.left = btnSuperX + "%";
 
             this.dragones.push(dragon);
         }
 
-        let btnCargar = new BotonCargar(idDivPadre, btnSuperX + 1, 10, 3, Dragon.HEIGHT, () => {
-            console.log("fak");
+        this.btnCargar = new BotonCargar(idDivPadre, btnSuperX + 1, 10, 3, Dragon.HEIGHT, (carga) => {
+            this.carga = carga;
         });
-        btnCargar.iniciar();
     }
 
     setJugadorOponente(jugOponente) {
@@ -65,6 +84,8 @@ class Jugador {
                         case 6: //espinas
                             //Efecto positivo
                             if (esAliado) { //Si es un aliado
+                                Jugador.DRAGON_EN_TURNO.setSuper(0);
+                                
                                 Jugador.DRAGON_EN_TURNO.usarHabilidad(this.dragones, i); //El dragón en turno ataca a este dragón
                                 this.jugOponente.terminarTurno(); //Dejar el turno al siguiente dragon
                             } else { //Si no es un aliado
@@ -82,6 +103,8 @@ class Jugador {
                         case 7: //debilitamiento
                             //Efecto negativo
                             if (!esAliado) { //Si no es un dragón aliado
+                                Jugador.DRAGON_EN_TURNO.setSuper(0);
+
                                 Jugador.DRAGON_EN_TURNO.usarHabilidad(this.dragones, i); //El dragón en turno ataca a este dragón
                                 this.terminarTurno(); //Dejar el turno al siguiente dragon
                             } else { //Si es un aliado
@@ -98,18 +121,23 @@ class Jugador {
 
                     return;
                 } else { //Si es un ataque normal
-                    if (!esAliado) { //Si no es un dragón aliado
-                        Jugador.DRAGON_EN_TURNO.atacar(this.dragones[i], 1); //El dragón en turno ataca a ese dragón
-                    } else { //Si es un aliado
+
+                    if (esAliado) { //Si es un dragón aliado
                         mostrarAlerta("Cuidado", "Ese dragón es aliado<br>"
                             + "Ataca sólo a dragones oponentes"); //Mostrar una alerta
 
                         return; //No terminar el turno
+                    } else if (this.jugOponente.carga == undefined) { //Si es un oponente y no se ha establecido una carga
+                        mostrarAlerta("Prepara el ataque antes", "Antes de elegir un objetivo, debes determinar una carga de ataque");
+
+                        return; //No terminar el turno
+                    } else { //Si es un oponente y ya se tiene una carga
+                        Jugador.DRAGON_EN_TURNO.atacar(this.dragones[i], this.jugOponente.carga); //El dragón en turno ataca a ese dragón
                     }
                 }
 
                 if (!this.tieneDragones()) { //Si después del ataque este jugador ya no tiene otros dragones
-                    mostrarAlerta("Tenemos un ganador", "El ganador es el jugador " + this.numJugador);
+                    mostrarAlerta("Tenemos un ganador", "El ganador es el jugador " + this.jugOponente.numJugador);
                 } else { //Si aún tiene dragones
                     this.jugOponente.terminarTurno(); //Terminar el turno del oponente
                 }
@@ -139,8 +167,11 @@ class Jugador {
 
                 return;//no hacer nada más
             }
-
         }
+
+        this.btnCargar.divContenedor.style.display = "inline";
+        this.btnCargar.divContenedor.style.top = (10 + (28 * indiceDragon)) + "%"; //Mover la vista para la carga al lado del dragón en turno
+        this.btnCargar.iniciar();
 
         Jugador.DRAGON_EN_TURNO.btnSuper.disabled = false; //Activar el botón de super del dragón en turno
 
@@ -148,7 +179,6 @@ class Jugador {
             if (!this.dragones[i].vivo) { //Si el dragon ya fue abatido
                 continue; //Ignorar
             }
-
 
             if (i == indiceDragon) { //Actualizar el estilo CSS del botón, según si es o no el dragón en turno
                 this.dragones[i].imagen.classList = "btn-dragon btn-dragon-turno";
@@ -160,6 +190,8 @@ class Jugador {
 
     terminarTurno() {
         Jugador.USAR_SUPER = false; //Desactivar el super
+        this.carga = undefined; //Eliminar la carga
+        this.btnCargar.divContenedor.style.display = "none";
 
         for (let i = 0; i < this.dragones.length; i++) { //Para los dragones propios
             if (this.dragones[i].vivo) { //Si el dragon sigue vivo
