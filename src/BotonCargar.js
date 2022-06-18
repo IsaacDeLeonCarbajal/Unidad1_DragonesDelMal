@@ -52,11 +52,11 @@ class BotonCargar {
         this.btnCargar.disabled = false; //Activar el botón
 
         this.idIntervalo = setInterval(() => {
-            if ((this.carga + velCarga) > 1) { //Si la carga es mayor que 1
-                this.carga = -velCarga; //Reiniciarla
+            if ((this.carga + this.velCarga) > 1) { //Si la carga es mayor que 1
+                this.carga = -this.velCarga; //Reiniciarla
             }
 
-            this.setCarga(this.carga += velCarga); //Actualizar la carga
+            this.setCarga(this.carga += this.velCarga); //Actualizar la carga
         }, 70);
     }
 
