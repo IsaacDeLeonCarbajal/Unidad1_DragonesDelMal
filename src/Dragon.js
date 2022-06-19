@@ -11,7 +11,7 @@ class Dragon {
         "Superataque",
         "Escudo",
         "Espinas",
-        "Debilitamiento"
+        "Debilitación"
     ];
 
     imagen;
@@ -31,6 +31,16 @@ class Dragon {
 
     idIntervalo;
 
+    /**
+     * Crear un dragón para el juego.
+     * Este contiene a todas las vistas necesarias para su manejo, como la imagen y diversos indicadores.
+     * 
+     * @param {String} idDivPadre 
+     * @param {number} idDragon Id de la clase a la que pertenece este dragón
+     * @param {number} x Posición de la vista en el eje x
+     * @param {number} y Posición de la vista en el eje y
+     * @param {number} onSuperChange Acción a realizar cuando se cambie el estado del super
+     */
     constructor(idDivPadre, idDragon, x, y, onSuperChange) {
         //Construir el botón que será la imágen del dragón
         this.imagen = document.createElement("button");
@@ -131,6 +141,7 @@ class Dragon {
      * 
      * @param {Dragon} objetivo Dragon al que se va a atacar
      * @param {number} fuerza Nivel de intensidad del ataque
+     * @param {boolean} cargarSuper Indica si se el ataque aumenta la carga del super de este dragón. Por default es true
      */
     atacar(objetivo, fuerza, cargarSuper) {
         let indiceEfecto = this.efectos.indexOf(7); //Buscar el efecto de debilitamiento
@@ -164,6 +175,12 @@ class Dragon {
         }
     }
 
+    /**
+     * Usar el super de este dragón en contra de otro, según los parámetros proporcionados
+     * 
+     * @param {Array} objetivos Equipo de dragones al que se le va a dar el efecto del super
+     * @param {number} indice Posición del dragón objetivo en el arreglo
+     */
     usarHabilidad(objetivos, indice) {
         switch (this.idHabilidad) {
             case 0: //paralizacion
@@ -208,6 +225,11 @@ class Dragon {
         }
     }
 
+    /**
+     * Procesos que se realizan cada vez que un jugador termina un turno.
+     * 
+     * Consiste principalmente en el manejo de los efectos que tiene este dragón
+     */
     pasarTurno() {
         let cantEfectos = { //Cantidad de turnos restantes con cada efecto que tiene el dragón
             "efecto0": 0,
@@ -279,6 +301,12 @@ class Dragon {
         this.btnSuper.disabled = true; //Desactivar el botón de super
     }
 
+    /**
+     * Bajar la vida de este dragón y actualizar los indicadores correspondientes.
+     * Actualizar el estado si el dragón es abatido con este ataque
+     * 
+     * @param {number} danio Cantidad de daño a recibir
+     */
     recibirDanio(danio) {
         this.vida -= danio; //Disminuir la vida
 
@@ -291,6 +319,11 @@ class Dragon {
         }
     }
 
+    /**
+     * Actualizar la carga del super y los indicadores correspondientes
+     * 
+     * @param {number} nuevoSuper Nueva carga del super
+     */
     setSuper(nuevoSuper) {
         this.super = nuevoSuper; //Actualizar el super
 

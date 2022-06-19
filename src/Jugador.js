@@ -12,8 +12,11 @@ class Jugador {
     carga = undefined;
 
     /**
+     * Crear a un jugador, el cual contendrá a sus dragones y maneja la realización de los turnos
      * 
+     * @param {String} idDivPadre Atributo id del elemento html que contendrá a estas vistas
      * @param {Array} idsDragones Arreglo con los id de los dragones se este jugador
+     * @param {number} numJugador Número del jugador, que debe ser uno de 1 y 2
      */
     constructor(idDivPadre, idsDragones, numJugador) {
         this.numJugador = numJugador;
@@ -71,6 +74,10 @@ class Jugador {
         });
     }
 
+    /**
+     * Actualizar la referencia al jugador oponente, para agregar los eventos necesarios para el manejo de los turnos
+     * @param {Jugador} jugOponente Enemigo de este jugador
+     */
     setJugadorOponente(jugOponente) {
         this.jugOponente = jugOponente; //Actualizar el jugador oponente
 
@@ -145,6 +152,12 @@ class Jugador {
         }
     }
 
+    /**
+     * Ejecutar un turno del jugador.
+     * Actualizar el índice, el dragón en turno, y las vistas necesarias
+     * 
+     * @param {number} indiceDragon Indice del dragón que debe realizar el turno
+     */
     realizarTurno(indiceDragon) {
         if (indiceDragon == this.dragones.length) { //Si el índice del dragón es igual al número de dragones
             indiceDragon = 0; //Reiniciar el índice
@@ -188,6 +201,10 @@ class Jugador {
         }
     }
 
+    /**
+     * Terminar el turno del jugador.
+     * Actualizar el índice, el dragón en turno, y las vistas necesarias
+     */
     terminarTurno() {
         Jugador.USAR_SUPER = false; //Desactivar el super
         this.carga = undefined; //Eliminar la carga
@@ -211,6 +228,11 @@ class Jugador {
         this.jugOponente.realizarTurno(this.jugOponente.indiceTurno + 1); //Realizar el turno del oponente con su siguiente dragón
     }
 
+    /**
+     * Indica si este jugador tiene dragones vivos restantes
+     * 
+     * @returns true si tiene dragones, false si no
+     */
     tieneDragones() {
         for (let i = 0; i < this.dragones.length; i++) {
             if (this.dragones[i].vivo) { //Si alguno de los dragones está vivo

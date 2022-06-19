@@ -9,6 +9,17 @@ class BotonCargar {
 
     velCarga = 0.1; //Velocidad de carga
 
+    /**
+     * Crear una vista para poder determinar una carga.
+     * Cada vez que se da click en el botón, se invoca a la función onCarga(), pasándole la carga obtenida
+     * 
+     * @param {String} idDivPadre Atributo id del elemento html que contendrá a esta vista
+     * @param {number} x Posición de la vista en el eje x
+     * @param {number} y Posición de la vista en el eje y
+     * @param {number} width Ancho de la vista
+     * @param {number} height Altura total de la vista
+     * @param {function} onCarga Acción a realizar cuando se determine una carga
+     */
     constructor(idDivPadre, x, y, width, height, onCarga) {
         this.carga = 0;
         this.divContenedor = document.createElement("div");
@@ -45,6 +56,9 @@ class BotonCargar {
         document.getElementById(idDivPadre).insertAdjacentElement("beforeend", this.divContenedor);
     }
 
+    /**
+     * Iniciar el movimiento de las vistas para la carga, así como activar el botón
+     */
     iniciar() {
         this.btnCargar.classList = "btn-cargar btn-cargar-hover"; //Actualizar el estilo del boton
         clearInterval(this.idIntervalo); //Eliminar el proceso anterior, en caso de que lo hubiera
@@ -60,6 +74,9 @@ class BotonCargar {
         }, 70);
     }
 
+    /**
+     * Pausar el movimiento de las vistas para la carga, así como desactivar el botón
+     */
     pausar() {
         this.btnCargar.classList = "btn-cargar"; //Actualizar el estilo del boton
         clearInterval(this.idIntervalo); //Eliminar el proceso anterior, en caso de que lo hubiera
@@ -67,6 +84,11 @@ class BotonCargar {
         this.btnCargar.disabled = true; //Desactivar el botón
     }
 
+    /**
+     * Cambiar el nivel de la carga y actualizar la vista del indicador
+     * 
+     * @param {number} nuevaCarga La carga a la que se va a actualizar. Debe ser un número entre 0 y 1
+     */
     setCarga(nuevaCarga) {
         this.carga = nuevaCarga;
 
