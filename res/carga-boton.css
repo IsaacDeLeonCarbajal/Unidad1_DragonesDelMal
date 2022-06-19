@@ -1,7 +1,6 @@
 .btn-cargar {
     position: absolute;
     background-color: rgb(100, 115, 255);
-    /* border-color: rgb(0, 18, 175); */
     transition-duration: 200ms;
     border-width: 0px;
 }
