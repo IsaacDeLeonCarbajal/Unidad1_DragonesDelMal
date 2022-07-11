@@ -11,14 +11,15 @@ class Dragon {
         "Superataque",
         "Escudo",
         "Espinas",
-        "Debilitación"
+        "Debilitamiento"
     ];
 
-    imagen;
+    vista;
     indicadorVida;
     indicadorEfectos;
     indicadorSuper;
     btnSuper;
+    btnCargar;
 
     idHabilidad;
     vivo = true;
@@ -35,21 +36,22 @@ class Dragon {
      * Crear un dragón para el juego.
      * Este contiene a todas las vistas necesarias para su manejo, como la imagen y diversos indicadores.
      * 
-     * @param {String} idDivPadre 
+     * @param {String} idDivPadre Atributo id del elemento HTML que contendrá a este dragón
      * @param {number} idDragon Id de la clase a la que pertenece este dragón
-     * @param {number} x Posición de la vista en el eje x
-     * @param {number} y Posición de la vista en el eje y
-     * @param {number} onSuperChange Acción a realizar cuando se cambie el estado del super
+     * @param {function} onSuperChange Acción a realizar cuando se cambie el estado del super
+     * @param {function} onCarga Acción a realizar cuando se determine una carga
      */
-    constructor(idDivPadre, idDragon, x, y, onSuperChange) {
-        //Construir el botón que será la imágen del dragón
-        this.imagen = document.createElement("button");
-        this.imagen.classList = "btn-dragon btn-dragon-activado";
-        this.imagen.style.backgroundImage = "url(res/dragon" + (idDragon + 1) + ".png)";
-        this.imagen.style.width = Dragon.WIDTH + "%";
-        this.imagen.style.height = Dragon.HEIGHT + "%";
-        this.imagen.style.left = x + "%";
-        this.imagen.style.top = y + "%";
+    constructor(idDivPadre, idTmpJug, idDragon, onSuperChange, onCarga) {
+        let tmpJug = document.getElementById(idTmpJug);
+        let div = document.importNode(tmpJug.content.querySelector("div"), true);
+
+        this.vista = div.querySelector("#btn-vista");
+        this.btnSuper = div.querySelector("#btn-super");
+        this.indicadorVida = div.querySelector("#div-indicador-vida");
+        this.indicadorSuper = div.querySelector("#div-indicador-super");
+        this.indicadorEfectos = div.querySelector("#div-indicador-efectos");
+
+        div.querySelector("#lbl-nombre").innerHTML = Dragon.HABILIDADES[idDragon];
 
         this.idHabilidad = idDragon; //Hailidad de este dragón
 
@@ -57,13 +59,13 @@ class Dragon {
             throw "idDragon inválido. Debe estar entre 0 y " + (Dragon.HABILIDADES.length - 1);
         }
 
-        let dX = 0.5; //Velocidad de levitación
-        let lim = 0.8; //Límite de movimiento con la levitación
+        let dX = 1.5; //Velocidad de levitación
+        let lim = 3; //Límite de movimiento con la levitación
         let rX = 0; //Posición real en x
 
         this.idIntervalo = setInterval(() => { //Dar el efecto de levitación
             if (!this.vivo) { //Si el dragón ya fue abatido
-                this.imagen.style.left = x + "%"; //Centrar la imagen
+                this.vista.style.left = "0%"; //Centrar la imagen
                 clearInterval(this.idIntervalo); //Dejar de mover la imagen
 
                 return; //No hacer nada más
@@ -73,67 +75,21 @@ class Dragon {
                 dX *= -1; //Moverse en la dirección opuesta
             }
 
-            this.imagen.style.left = (x + (rX += dX)) + "%"; //Actualizar la posición de la imagen
+            this.vista.style.left = (rX += dX) + "%"; //Actualizar la posición de la imagen
         }, 200);
 
-        //Construir el indicador de la vida
-        this.indicadorVida = document.createElement("div");
-        this.indicadorVida.classList = "div-indicador-vida";
-        this.indicadorVida.style.height = "3%";
-        this.indicadorVida.style.width = Dragon.WIDTH + "%";
-        this.indicadorVida.style.top = (y + Dragon.HEIGHT + 1) + "%";
-        this.indicadorVida.style.left = x + "%";
+        this.vista.style.backgroundImage = "url(assets/img/dragon" + (idDragon + 1) + ".png)";
 
-        //Construir el indicador de la carga del super
-        this.indicadorSuper = document.createElement("div");
-        this.indicadorSuper.classList = "div-indicador-super";
-        this.indicadorSuper.innerHTML = Dragon.HABILIDADES[idDragon];
-        this.indicadorSuper.style.height = "3%";
-        this.indicadorSuper.style.width = "0%";
-        this.indicadorSuper.style.top = (y + Dragon.HEIGHT + 4) + "%";
-        this.indicadorSuper.style.left = x + "%";
+        this.btnCargar = new BotonCargar([div.querySelector("#div-carga"), div.querySelector("#btn-cargar")], onCarga);
 
-        //Construir el indicador de efectos
-        this.indicadorEfectos = document.createElement("div");
-        this.indicadorEfectos.classList = "div-indicador-efectos";
-        this.indicadorEfectos.style.textAlign = "left";
-        this.indicadorEfectos.style.height = Dragon.HEIGHT + "%";
-        this.indicadorEfectos.style.width = Dragon.INDICADOR_WIDTH + "%";
-        this.indicadorEfectos.style.top = y + "%";
-        this.indicadorEfectos.style.left = x + "%";
-
-        //Construir el botón para activar el super
-        this.btnSuper = document.createElement("button");
-        this.btnSuper.classList = "btn-super btn-super-desactivado";
-        this.btnSuper.innerHTML = "Super";
-        this.btnSuper.style.width = "5%";
-        this.btnSuper.style.height = "4%";
-        this.btnSuper.style.top = (y + Dragon.HEIGHT + 2) + "%";
-        this.btnSuper.style.left = x + "%";
+        this.btnSuper.disabled = true;
         this.btnSuper.addEventListener('click', () => {
-            if (this.super < 100) { //Si aún no se carga el super
-                this.superActivado = false; //No se puede activar el super
-                onSuperChange(this.superActivado); //No se puede activar el super
-                return; //No hacer nada más
-            }
-
-            this.superActivado = !this.superActivado; //Activar o desactivar el super
-
-            if (this.superActivado) { //Actualizar el estilo CSS del botón, según el estado del super
-                this.btnSuper.classList = "btn-super btn-super-activado";
-            } else {
-                this.btnSuper.classList = "btn-super btn-super-desactivado";
-            }
+            this.superActivado = !this.superActivado && (this.super >= 100); //Activar o desactivar el super. Si el super no ha llegado a 100, no se puede activar
 
             onSuperChange(this.superActivado); //Enviar el evento
         });
 
-        //Mostrar en pantalla todas las vistas
-        document.getElementById(idDivPadre).insertAdjacentElement("beforeend", this.imagen);
-        document.getElementById(idDivPadre).insertAdjacentElement("beforeend", this.indicadorVida);
-        document.getElementById(idDivPadre).insertAdjacentElement("beforeend", this.indicadorSuper);
-        document.getElementById(idDivPadre).insertAdjacentElement("beforeend", this.indicadorEfectos);
-        document.getElementById(idDivPadre).insertAdjacentElement("beforeend", this.btnSuper);
+        document.getElementById(idDivPadre).insertAdjacentElement('beforeend', div); //Agregar la vista a la pantalla
     }
 
     /**
@@ -297,7 +253,6 @@ class Dragon {
             }
         }
 
-        this.btnSuper.classList = "btn-super btn-super-desactivado"; //Reiniciar el botón de super
         this.btnSuper.disabled = true; //Desactivar el botón de super
     }
 
@@ -310,11 +265,11 @@ class Dragon {
     recibirDanio(danio) {
         this.vida -= danio; //Disminuir la vida
 
-        this.indicadorVida.style.width = Math.max(0, (Dragon.WIDTH * this.vida * 0.01)) + "%"; //Actualizar el indicador de vida
+        this.indicadorVida.style.width = Math.max(0, this.vida) + "%"; //Actualizar el indicador de vida
 
         if (this.vida <= 0) { //Si el dragon muere
-            this.imagen.classList = "btn-dragon btn-dragon-muerto"; //Evitar el efecto hover de CSS
-            this.imagen.disabled = true; //Evitar que se pueda seleccionar
+            this.vista.classList = "btn-dragon btn-dragon-muerto"; //Evitar el efecto hover de CSS
+            this.vista.disabled = true; //Evitar que se pueda seleccionar
             this.vivo = false; //Indicar que el dragón ya fue abatido
         }
     }
@@ -327,7 +282,7 @@ class Dragon {
     setSuper(nuevoSuper) {
         this.super = nuevoSuper; //Actualizar el super
 
-        this.indicadorSuper.style.width = Math.max(0, (Dragon.WIDTH * this.super * 0.01)) + "%"; //Actualizar el indicador de super
+        this.indicadorSuper.style.width = Math.max(0, this.super) + "%"; //Actualizar el indicador de super
     }
 
 }

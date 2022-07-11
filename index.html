@@ -5,66 +5,148 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="res/styles.css">
-    <link rel="stylesheet" href="res/carga-boton.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <title>Dragones del Mal</title>
 </head>
 
-<body id="body" style="background-color: darkolivegreen; text-align: center;">
+<body id="body" style="background-color: green;">
     <script src="src/BotonCargar.js"></script>
     <script src="src/Dragon.js"></script>
     <script src="src/Jugador.js"></script>
 
-    <div id="div-juego" style="display: none;"></div>
+    <div id="div-juego" class="container-md vh-100 d-flex flex-column">
+        <h1 class="text-center py-4 d-none d-md-inline">Batalla</h1>
 
-    <dialog id="dlg-seleccion-dragones" style="position:relative; width: 90%; height: 90%;">
-        <form method="dialog" id="form-dialog" style="position:relative; width: 100%; height: 85%;">
-            <h2 id="titulo-seleccion">Elige a tus dragones jugador 1</h2>
+        <div class="row col flex-grow-1">
+            <div id="div-jug-1" class="col-6 col-md-5 d-flex flex-column px-0"></div>
+            <div id="div-jug-2" class="col-6 col-md-5 d-flex flex-column offset-md-2 px-0"></div>
+        </div>
+    </div>
 
-            <div id="div-seleccion-dragon" style="position:relative; width: 100%; height: 95%;"></div>
+    <dialog id="dlg-seleccion-dragones" style="width: 90%; height: 90%;">
+        <form id="form-dialog" method="dialog" class="text-center" style="width: 100%; height: 85%;">
+            <div class="col d-flex flex-column">
+                <h2 id="titulo-seleccion" class="mb-5">Elige a tus dragones jugador 1</h2>
 
-            <button type="submit" value="aceptar" class="btn-dialog">Aceptar</button>
+                <div id="div-seleccion-dragon" class="row row-cols-3" style="width: 100%; height: 95%;"></div>
+
+                <button type="submit" value="aceptar" class="btn-dialog my-5">Aceptar</button>
+            </div>
         </form>
     </dialog>
 
     <dialog id="dlg-alerta">
-        <form method="dialog">
+        <form method="dialog" class="text-center">
             <h2 id="titulo-dialog"></h2>
-            <label id="lbl-mensaje-dialog"></label>
-            <br><br>
-            <button type="submit" value="aceptar" class="btn-dialog">Aceptar</button>
+
+            <label id="lbl-mensaje-dialog"></label><br>
+
+            <button type="submit" value="aceptar" class="btn-dialog my-3">Aceptar</button>
         </form>
     </dialog>
 
+    <template id="tmp-jug-1">
+        <div class="col-12 mb-3 flex-grow-1">
+            <div class="d-flex flex-row h-100">
+                <div class="col d-flex flex-column">
+                    <label id="lbl-nombre" class="col fs-5 fw-bold text-break text-light text-end">Habilidad</label>
+                    <div id="div-indicador-efectos" class="text-end overflow-auto flex-grow-1"></div>
+                </div>
+
+                <div class="col-6 d-flex flex-column">
+                    <button id="btn-vista" class="btn-dragon btn-dragon-activado flex-grow-1" style="z-index: 100; background-image: url(assets/img/dragon1.png);"></button>
+
+                    <div class="progress mb-1">
+                        <div id="div-indicador-vida" class="progress-bar" role="progressbar" style="background-color: greenyellow; width: 100%;"></div>
+                    </div>
+
+                    <div class="progress">
+                        <div id="div-indicador-super" class="progress-bar" role="progressbar" style="background-color: aqua;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column align-items-center">
+                    <div class="col-10 progress flex-grow-1">
+                        <div id="div-carga" class="w-100 position-relative progress-bar" role="progressbar" style="height: 0%; background-color: blue;"></div>
+                    </div>
+
+                    <button id="btn-cargar" class="btn btn-danger mb-1" style="width: 80%;"></button>
+
+                    <button id="btn-super" class="btn btn-primary p-1">
+                        <label class="d-inline d-sm-none">S</label>
+                        <label class="d-none d-sm-inline d-md-none">Sup</label>
+                        <label class="d-none d-md-inline">Super</label>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tmp-jug-2">
+        <div class="col-12 mb-3 flex-grow-1">
+            <div class="d-flex flex-row h-100">
+                <div class="d-flex flex-column align-items-center">
+                    <div class="col-10 progress flex-grow-1">
+                        <div id="div-carga" class="w-100 position-relative progress-bar" role="progressbar" style="height: 0%; background-color: blue;"></div>
+                    </div>
+
+                    <button id="btn-cargar" class="btn btn-danger mb-1" style="width: 80%;"></button>
+
+                    <button id="btn-super" class="btn btn-primary p-1">
+                        <label class="d-inline d-sm-none">S</label>
+                        <label class="d-none d-sm-inline d-md-none">Sup</label>
+                        <label class="d-none d-md-inline">Super</label>
+                    </button>
+                </div>
+
+                <div class="col-6 d-flex flex-column">
+                    <button id="btn-vista" class="btn-dragon btn-dragon-activado flex-grow-1" style="z-index: 100; background-image: url(assets/img/dragon1.png);"></button>
+
+                    <div class="progress mb-1">
+                        <div id="div-indicador-vida" class="progress-bar" role="progressbar" style="background-color: greenyellow; width: 100%;"></div>
+                    </div>
+
+                    <div class="progress">
+                        <div id="div-indicador-super" class="progress-bar" role="progressbar" style="background-color: aqua;"></div>
+                    </div>
+                </div>
+
+                <div class="col d-flex flex-column">
+                    <label id="lbl-nombre" class="col fs-5 fw-bold text-break text-light text-start">Habilidad</label>
+                    <div id="div-indicador-efectos" class="text-start overflow-auto flex-grow-1"></div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="tmp-dragon">
+        <div class="col d-flex flex-column">
+            <button id="btn-imagen" type="button" class="btn-dragon btn-dragon-activado flex-grow-1" style="z-index: 100; background-image: url(assets/img/dragon1.png);"></button>
+
+            <label id="lbl-dragon" class="text-center fs-5 fs-md-2 text-white bg-primary">Dragón</label>
+        </div>
+    </template>
+
     <script>
         var dlgSeleccionDragones = document.getElementById("dlg-seleccion-dragones");
+        var tmpDragon = document.getElementById("tmp-dragon");
 
         let jugadores = []; //Jugadores
         let contJugador = 0; //Indice del jugador que se está inicializando
         let contSeleccionados = 0;
 
         for (let i = 0; i < Dragon.HABILIDADES.length; i++) { //Crear las vistas para seleccionar a los dragones
-            let btn = document.createElement("button");
-            btn.id = "btn-dragon-" + (i + 1);
-            btn.classList = "btn-dragon btn-dragon-activado";
-            btn.type = "button";
-            btn.seleccionado = false;
-            btn.style.backgroundImage = "url(res/dragon" + (i + 1) + ".png)";
-            btn.style.width = "20%";
-            btn.style.height = "24%";
-            btn.style.top = (34 * parseInt(i / 3)) + "%";
-            btn.style.left = 5 + (35 * (i % 3)) + "%";
+            let div = document.importNode(tmpDragon.content.querySelector("div"), true);
+            let btn = div.querySelector("button");
+            let lbl = div.querySelector("label");
 
-            let lbl = document.createElement("label");
-            lbl.htmlFor = btn.id;
+            div.style.height = (window.innerHeight * 0.3) + "px";
+            btn.style.backgroundImage = "url(assets/img/dragon" + (i + 1) + ".png";
             lbl.innerHTML = Dragon.HABILIDADES[i];
-            lbl.classList = "lbl-efecto lbl-efecto-positivo";
-            lbl.style.position = "absolute";
-            lbl.style.width = "20%";
-            lbl.style.height = "6%";
-            lbl.style.top = 24 + (34 * parseInt(i / 3)) + "%";
-            lbl.style.left = 1 + (34 * (i % 3)) + "%";
 
+            btn.id = "btn-dragon-" + (i + 1);
+            btn.seleccionado = false;
             btn.setSeleccionado = (selec) => {
                 btn.seleccionado = selec; //Actualizar el estado de seleccionado
 
@@ -87,11 +169,9 @@
                 btn.setSeleccionado(btn.seleccionado); //Actualizar el estado de seleccionado
             });
 
-            document.getElementById("div-seleccion-dragon").insertAdjacentElement("beforeend", btn);
-            document.getElementById("div-seleccion-dragon").insertAdjacentElement("beforeend", lbl);
+            document.getElementById("div-seleccion-dragon").insertAdjacentElement('beforeend', div);
         }
 
-        dlgSeleccionDragones = document.getElementById("dlg-seleccion-dragones");
         dlgSeleccionDragones.showModal();
         dlgSeleccionDragones.reiniciar = () => {
             for (let i = 0; i < Dragon.HABILIDADES.length; i++) {
@@ -113,13 +193,14 @@
 
             switch (contJugador) {
                 case 0: //Jugador 1
-                    jugadores.push(new Jugador("div-juego", drgns, (contJugador + 1))); //Inicializar al jugador 1
+                    jugadores.push(new Jugador(drgns, (contJugador + 1))); //Inicializar al jugador 1
+
                     document.getElementById("titulo-seleccion").innerHTML = "Elige a tus dragones jugador 2";
                     dlgSeleccionDragones.reiniciar(); //Reiniciar las vistas del diálogo
-                    dlgSeleccionDragones.showModal(); //Mostrar el diálogo
+                    dlgSeleccionDragones.showModal(); //Mostrar el diálogo para el jugador 2
                     break;
                 case 1: //Jugador 2
-                    jugadores.push(new Jugador("div-juego", drgns, (contJugador + 1))); //Inicializar al jugador 2
+                    jugadores.push(new Jugador(drgns, (contJugador + 1))); //Inicializar al jugador 2
 
                     //Después de inicializar al jugador 2, comenzar el juego
                     //Pasar las referencias de los oponentes
@@ -127,8 +208,6 @@
                     jugadores[1].setJugadorOponente(jugadores[0]);
 
                     jugadores[0].realizarTurno(0); //Comenzar con los turnos
-
-                    document.getElementById("div-juego").style.display = "inline"; //Mostrar el juego
                     break;
             }
 

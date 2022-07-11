@@ -18,60 +18,34 @@ class Jugador {
      * @param {Array} idsDragones Arreglo con los id de los dragones se este jugador
      * @param {number} numJugador Número del jugador, que debe ser uno de 1 y 2
      */
-    constructor(idDivPadre, idsDragones, numJugador) {
+    constructor(idsDragones, numJugador) {
         this.numJugador = numJugador;
 
-        //Variables para acomodar las vistas, dependiendo si es el jugador de la izquierda o la derecha
-        let dragonesX = 0;
-        let transform = "";
-        let indicadorX = 0;
-        let btnSuperX = 0;
-        let textAlign = "left";
+        for (let i = 0; i < idsDragones.length; i++) { //Crear las vistas de cada dragón
+            let dragon = new Dragon("div-jug-" + numJugador, "tmp-jug-" + numJugador, idsDragones[i],
+                (superActivado) => {
+                    if (this.carga != undefined) { //Si ya se determinó una carga
+                        return; //No se puede usar el super
+                    }
 
-        switch (numJugador) {
-            case 1: //Si es el jugador 1 (a la izquierda)
-                dragonesX = 25;
-                transform = "scaleX(-1)";
-                indicadorX = (dragonesX - Dragon.INDICADOR_WIDTH - 1) + "%";
-                btnSuperX = (dragonesX + Dragon.INDICADOR_WIDTH - 2);
-                textAlign = "right";
-                break;
-            case 2: //Si es el jugador 2 (a la derecha)
-                dragonesX = 60;
-                indicadorX = (dragonesX + Dragon.INDICADOR_WIDTH + 1) + "%";
-                btnSuperX = (dragonesX - 6);
-                textAlign = "left";
-                break;
-        }
+                    Jugador.USAR_SUPER = superActivado; //Actualizar el estado del super
 
-        for (let i = 0; i < idsDragones.length; i++) { //Crear y acomodar las vistas de cada dragón
-            let dragon = new Dragon(idDivPadre, idsDragones[i], dragonesX, 10 + (28 * i), (superActivado) => {
-                if (this.carga != undefined) { //Si ya se determinó una carga
-                    return; //No se puede usar el super
-                }
+                    dragon.btnCargar.setCarga(0); //Reiniciar la vista para determinar la carga
 
-                Jugador.USAR_SUPER = superActivado; //Actualizar el estado del super
+                    if (superActivado) { //Si se activa el super
+                        dragon.btnCargar.pausar(); //No se usará la carga
+                    } else { //Si se desactiva el super
+                        dragon.btnCargar.iniciar(); //Si se usará la carga
+                    }
+                }, (carga) => {
+                    this.carga = carga; //Actualizar la carga
+                });
 
-                this.btnCargar.setCarga(0); //Reiniciar la vista para determinar la carga
-
-                if (superActivado) { //Si se activa el super
-                    this.btnCargar.pausar(); //No se usará la carga
-                } else { //Si se desactiva el super
-                    this.btnCargar.iniciar(); //Si se usará la carga
-                }
-            });
             //Acomodar las vistas del dragón
-            dragon.imagen.style.transform = transform;
-            dragon.indicadorEfectos.style.left = indicadorX;
-            dragon.indicadorEfectos.style.textAlign = textAlign;
-            dragon.btnSuper.style.left = btnSuperX + "%";
+            dragon.vista.style.transform = "scaleX(" + ((numJugador == 1) ? "-1" : "1") + ")";
 
             this.dragones.push(dragon); //Agregar el dragón al arreglo
         }
-
-        this.btnCargar = new BotonCargar(idDivPadre, btnSuperX + 1, 10, 3, Dragon.HEIGHT, (carga) => {
-            this.carga = carga; //Actualizar la carga
-        });
     }
 
     /**
@@ -82,7 +56,7 @@ class Jugador {
         this.jugOponente = jugOponente; //Actualizar el jugador oponente
 
         for (let i = 0; i < this.dragones.length; i++) { //Para cada dragón
-            this.dragones[i].imagen.addEventListener('click', () => { //Al dar click en un dragón
+            this.dragones[i].vista.addEventListener('click', () => { //Al dar click en un dragón
                 let esAliado = this.dragones.includes(Jugador.DRAGON_EN_TURNO); //Determinar si el jugador en turno es un aliado
 
                 if (Jugador.USAR_SUPER) { //Si se activó el super
@@ -182,10 +156,7 @@ class Jugador {
             }
         }
 
-        this.btnCargar.divContenedor.style.display = "inline"; //Mostrar el botón de cargar
-        this.btnCargar.divContenedor.style.top = (10 + (28 * indiceDragon)) + "%"; //Mover la vista para que esté al lado del dragón en turno
-        this.btnCargar.iniciar(); //Iniciar el botón de cargar
-
+        Jugador.DRAGON_EN_TURNO.btnCargar.iniciar(); //Iniciar el botón de cargar
         Jugador.DRAGON_EN_TURNO.btnSuper.disabled = false; //Activar el botón de super del dragón en turno
 
         for (let i = 0; i < this.dragones.length; i++) { //Para cada dragon
@@ -194,9 +165,9 @@ class Jugador {
             }
 
             if (i == indiceDragon) { //Actualizar el estilo CSS del botón, según si es o no el dragón en turno
-                this.dragones[i].imagen.classList = "btn-dragon btn-dragon-turno";
+                this.dragones[i].vista.classList = "btn-dragon btn-dragon-turno";
             } else {
-                this.dragones[i].imagen.classList = "btn-dragon btn-dragon-activado";
+                this.dragones[i].vista.classList = "btn-dragon btn-dragon-activado";
             }
         }
     }
@@ -208,13 +179,12 @@ class Jugador {
     terminarTurno() {
         Jugador.USAR_SUPER = false; //Desactivar el super
         this.carga = undefined; //Eliminar la carga
-        this.btnCargar.divContenedor.style.display = "none"; //Ocultar el botón de cargar
 
         for (let i = 0; i < this.dragones.length; i++) { //Para los dragones propios
             if (this.dragones[i].vivo) { //Si el dragon sigue vivo
                 //Mostrar que puede ser atacado
-                this.dragones[i].imagen.classList = "btn-dragon btn-dragon-activado";
-                this.dragones[i].imagen.disabled = false; //Activar el botón para ser atacado
+                this.dragones[i].vista.classList = "btn-dragon btn-dragon-activado";
+                this.dragones[i].vista.disabled = false; //Activar el botón para ser atacado
                 this.dragones[i].pasarTurno(); //Actualizar los indicadores de efectos
             }
         }
